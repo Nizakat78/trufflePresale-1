@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Hain Presale</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>MEMEHAIN Token Presale</h1>
+
+    <!-- Wallet Connection -->
+    <button id="connectWallet">Connect Wallet</button>
+    <p id="walletAddress"></p>
+
+    <!-- Current Phase Info -->
+    <h2>Presale Information</h2>
+    <p id="currentPhase">Loading phase info...</p>
+    <p>Price per Token: <span id="pricePerToken">Loading...</span></p>
+    <p>Tokens Available: <span id="tokensAvailable">Loading...</span></p>
+
+    <!-- Buy Tokens -->
+    <h3>Buy Tokens</h3>
+    <input type="number" id="ethAmount" placeholder="ETH Amount">
+    <button onclick="buyTokensWithETH()">Buy with ETH</button><br><br>
+
+    <input type="number" id="usdtAmount" placeholder="USDT Amount">
+    <button onclick="buyTokensWithUSDT()">Buy with USDT</button><br><br>
+
+    <input type="number" id="usdcAmount" placeholder="USDC Amount">
+    <button onclick="buyTokensWithUSDC()">Buy with USDC</button><br><br>
+
+    <!-- Staking -->
+    <h3>Staking</h3>
+    <input type="number" id="stakeAmount" placeholder="Amount to Stake">
+    <button onclick="stakeTokens()">Stake Tokens</button><br><br>
+    <button onclick="unstakeTokens()">Unstake Tokens</button>
+    <button onclick="claimRewards()">Claim Rewards</button>
+
+    <!-- Claim Purchased Tokens -->
+    <h3>Claim Tokens</h3>
+    <button onclick="claimTokens()">Claim Tokens</button>
+
+    <script>
+        const presaleAddress = '0xB28a5fAecFbCb3B2B3F6Bd9421AE8396ebF74BfB'; // Replace with your contract address
+        const tokenAddress = '0x001D53F1E8138863d30Db94706c4C84BEFc71D59'; // Replace with your token address
+        const usdtAddress = '0x7d773Af3d29743442Dc991c168C434D99836A723'; // Replace with your USDT contract address
+        const usdcAddress = '0x74A4A85C611679B73F402B36c0F84A7D2CcdFDa3'; // Replace with your USDC contract address
+
+        let web3;
+        let presaleContract;
+        let account;
+
+        // ABI of the contract
+        const presaleAbi = [{"inputs":[{"internalType":"address","name":"_token","type":"address"},{"internalType":"address","name":"_usdt","type":"address"},{"internalType":"address","name":"_usdc","type":"address"},{"internalType":"address","name":"_priceFeedETH","type":"address"},{"internalType":"address","name":"_fundReceiver","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"phaseIndex","type":"uint256"}],"name":"PhaseActivated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"phaseIndex","type":"uint256"}],"name":"PhaseDeactivated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"claimer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"RewardsClaimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"claimer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensClaimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalCost","type":"uint256"}],"name":"TokensPurchased","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"staker","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensStaked","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"staker","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensUnstaked","type":"event"},{"inputs":[{"internalType":"uint256","name":"phaseIndex","type":"uint256"}],"name":"activatePhase","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyTokensWithETH","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amountInUSDC","type":"uint256"}],"name":"buyTokensWithUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amountInUSDT","type":"uint256"}],"name":"buyTokensWithUSDT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenAmount","type":"uint256"}],"name":"calculateTokenPriceInETH","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claimStakingRewards","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"claimTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentPhaseIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"fundReceiver","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLatestETHPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getPricePerToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"phases","outputs":[{"internalType":"uint256","name":"tokensAvailable","type":"uint256"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"uint256","name":"totalSold","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"stakeTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"stakingInfo","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"lastClaimed","type":"uint256"},{"internalType":"uint256","name":"rewards","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"tokenBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalStakingTokens","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"unstakeTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"usdc","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}] // Add your smart contract ABI here
+
+        // Load Web3 instance and connect to MetaMask
+        async function loadWeb3() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+                const accounts = await web3.eth.getAccounts();
+                account = accounts[0];
+                document.getElementById('walletAddress').textContent = `Connected: ${account}`;
+                loadContract(); // Load contract after wallet connection
+                await getPhaseInfo(); // Fetch phase info after loading contract
+            } else {
+                alert('Please install MetaMask!');
+            }
+        }
+
+        // Initialize contract instance
+        function loadContract() {
+            presaleContract = new web3.eth.Contract(presaleAbi, presaleAddress);
+        }
+
+        // Get phase information
+        async function getPhaseInfo() {
+            const currentPhaseIndex = await presaleContract.methods.currentPhaseIndex().call();
+            const phase = await presaleContract.methods.phases(currentPhaseIndex).call();
+            const priceInCents = phase.price;
+            const priceInUSD = priceInCents / 10000; // Convert cents to dollars
+
+            document.getElementById('currentPhase').textContent = `Current Phase: ${currentPhaseIndex} - ${phase.isActive ? 'Active' : 'Inactive'}`;
+            document.getElementById('pricePerToken').textContent = `$${priceInUSD.toFixed(2)}`;
+            document.getElementById('tokensAvailable').textContent = phase.tokensAvailable.toLocaleString();
+        }
+
+        // Buy tokens with ETH
+        async function buyTokensWithETH() {
+            const ethAmount = document.getElementById('ethAmount').value;
+            if (ethAmount > 0) {
+                await presaleContract.methods.buyTokensWithETH().send({ from: account, value: web3.utils.toWei(ethAmount, 'ether') });
+                alert('Tokens purchased with ETH!');
+                await getPhaseInfo(); // Refresh phase info after purchase
+            } else {
+                alert('Enter a valid ETH amount');
+            }
+        }
+
+        // Buy tokens with USDT
+        async function buyTokensWithUSDT() {
+            const usdtAmount = document.getElementById('usdtAmount').value;
+            if (usdtAmount > 0) {
+                await presaleContract.methods.buyTokensWithUSDT(usdtAmount).send({ from: account });
+                alert('Tokens purchased with USDT!');
+                await getPhaseInfo(); // Refresh phase info after purchase
+            } else {
+                alert('Enter a valid USDT amount');
+            }
+        }
+
+        // Buy tokens with USDC
+        async function buyTokensWithUSDC() {
+            const usdcAmount = document.getElementById('usdcAmount').value;
+            if (usdcAmount > 0) {
+                await presaleContract.methods.buyTokensWithUSDC(usdcAmount).send({ from: account });
+                alert('Tokens purchased with USDC!');
+                await getPhaseInfo(); // Refresh phase info after purchase
+            } else {
+                alert('Enter a valid USDC amount');
+            }
+        }
+
+        // Stake tokens
+        async function stakeTokens() {
+            const stakeAmount = document.getElementById('stakeAmount').value;
+            if (stakeAmount > 0) {
+                await presaleContract.methods.stakeTokens(stakeAmount).send({ from: account });
+                alert('Tokens staked!');
+            } else {
+                alert('Enter a valid stake amount');
+            }
+        }
+
+        // Unstake tokens
+        async function unstakeTokens() {
+            await presaleContract.methods.unstakeTokens().send({ from: account });
+            alert('Tokens unstaked!');
+        }
+
+        // Claim staking rewards
+        async function claimRewards() {
+            await presaleContract.methods.claimStakingRewards().send({ from: account });
+            alert('Rewards claimed!');
+        }
+
+        // Claim purchased tokens
+        async function claimTokens() {
+            await presaleContract.methods.claimTokens().send({ from: account });
+            alert('Tokens claimed!');
+        }
+
+        // Load contract and fetch initial data
+        window.onload = async () => {
+            await loadWeb3();
+        };
+    </script>
+</body>
+</html>

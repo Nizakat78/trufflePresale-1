@@ -1,0 +1,282 @@
+body {
+    background-color: rgb(255, 255, 255);
+    border: 40px;
+    font-family: "Paytone One", sans-serif;
+}
+
+.container {
+    padding: 10px;
+    background-image: linear-gradient(to bottom, #410096, #9b51e0);
+    border-radius: 40px;
+    box-shadow: 7px 7px 50px 0px #00c3ff;
+    color: #fff;
+    width: 30%;
+    text-align: center;
+    margin-left: 800px;
+    position: absolute;
+    height: 720px;
+    margin-top: 50px;
+    border: 10px solid #4b0f5e;
+  
+}
+.section {
+
+    padding: auto;
+    font-size: 20px;
+}
+
+/* Apply border to the Time section */
+.time {
+    border: 4px solid red; /* Change color as desired */
+    padding: 10px;
+    border-radius: 25px;
+    margin-top: 10px;
+}
+ /* Style for the popup modal */
+ .modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal content */
+.modal-content {
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+/* The close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Image inside the modal */
+.wallet-image {
+    width: 200px;
+    height: 90px;
+    cursor: pointer;
+}
+
+.container {
+    padding: 20px;
+}
+
+
+.tokens-bought{
+    display: none;
+}
+
+.lastchance{
+    margin-bottom: -10px;
+    font-size: 16px;
+}
+
+.raised{
+    display: flex;
+    align-items: center;
+    margin-left: 110px;
+    gap: 10px;
+}
+
+.raised .raisedboxleft{
+    background-color: white;
+    padding: 10px;
+    color: #410096;
+    border-radius: 10px;
+  
+}
+
+.raised .raisedboxright{
+    background-color: white;
+    padding: 10px;
+    color: #9B51E0;
+    border-radius: 10px;
+}
+
+.connectbutton {
+    background-color: transparent; 
+    border: none; 
+    padding: 0;
+  cursor: pointer;
+    color: #fff;
+    overflow: hidden;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    width: 46%; 
+    margin-left: 20px;
+    transition: 0.3s;
+    margin-bottom: -35px;
+    margin-top: 20px;
+  
+    &:hover{
+      transform: scale(1.1);
+    }
+  }
+
+  .timer {
+    font-size: 18px;
+    /* Increased from 14px */
+    margin-bottom: 10px;
+    /* Increased from 10px */
+    margin-top: 35px;
+    /* Increased from 30px */
+  }
+  
+  .timer p {
+    font-size: 18px;
+    /* Increased from 14px */
+    margin-bottom: -10px;
+    /* Increased from -14px */
+  }
+  
+  .timer-section {
+    font-size: 32px;
+    /* Increased from 28px */
+    font-weight: 900;
+  }
+  
+  .timer span {
+    border: 2px solid white;
+    background-color: white;
+    border-radius: 10px;
+    /* Increased from 8px */
+    font-size: 34px;
+    /* Increased from 30px */
+    margin: 8px;
+    /* Increased from 5px */
+    color: #9B51E0;
+    padding: 8px 10px 8px 6px;
+    /* Increased padding */
+    font-weight: 600;
+    box-shadow: 2px 7px 7px 3px;
+    /* Increased box-shadow size */
+  }
+
+  .progress-bar-container {
+    width: 400px;
+    max-width: 400px;
+    background-color: #4b0f5e;
+    border-radius: 30px;
+    padding: 5px;
+    position: relative;
+    height: 20px;
+    margin-left: 20px;
+    margin-top: 10px;
+  }
+
+  .progress-bar {
+    width: 290px;
+    height: 20px;
+    background: linear-gradient(90deg, #41e4ed 0%, #8afcdf 100%);
+    border-radius: 20px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 1;
+    animation: progress-animation 5s ease-in-out forwards;
+  }
+
+  .progress-text {
+  /* Fix the text so it won't move */
+    top: calc(50% - 27px); /* Adjust the top position according to the container height */
+    left: calc(50% - -230px); /* Adjust the left position for centering */
+    z-index: 2; /* Ensure text stays on top */
+    color: #41e4ed;
+    font-weight: bold;
+    font-size: 16px;
+    background: #fff;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Animation */
+  @keyframes progress-animation {
+    0% {
+      width: 0;
+    }
+    100% {
+      width: 97%;
+    }
+  }
+
+.buytokens {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.buytokens label {
+    margin-right: 10px;
+}
+
+#buy-amount, #tokenAmount {
+    width: 100px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+#buy-amount:focus, #tokenAmount:focus {
+    outline: none;
+}
+
+#buy-amount::-webkit-inner-spin-button, #buy-amount::-webkit-outer-spin-button, #tokenAmount::-webkit-inner-spin-button, #tokenAmount::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#tokenAmount {
+    margin-left: 10px;
+}
+
+.payment-button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: 2px solid #ccc;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.payment-button.selected {
+    border-color: #007bff;
+    background-color: #007bff;
+    color: white;
+}
+
+
+
+
+
+
+
+
+
+.stakingcontainer{
+    border: 2px solid;
+    width: 500px;
+    margin: 20px;
+}
+

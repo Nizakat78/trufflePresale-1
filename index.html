@@ -1,0 +1,149 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Token Sale and Staking dApp</title>
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Paytone+One&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <!-- Current Round Information -->
+            <div class="section">
+                <h2>MEMEHAIN PRESALE</h2>
+        <!--    <p><strong>Current Round:</strong> <span id="current-round">Loading...</span></p>
+                <p><strong>Token Price:</strong> <span id="token-price">Loading...</span> USD</p>
+                <p><strong>Tokens Available:</strong> <span id="tokens-available">Loading...</span></p>--> 
+                <p class="tokens-bought"><strong>Tokens Bought:</strong> <span id="tokens-bought">Loading...</span></p>
+
+                <div class="timer">
+                    <div class="timer-section"><span id="days">12</span>:<span id="hours">00</span>:<span
+                            id="minutes">00</span>:<span id="seconds">00</span></div>
+                            <h2 class="lastchance">LAST CHANCE TO BUY!</h2>
+                </div>
+            </div>
+
+            <!-- Soft Cap and Hard Cap -->
+            <div class="raised">
+            
+                <p><strong></strong> <span id="soft-cap" class="raisedboxleft" >$1,200,000 </span></p>
+                <p><strong></strong> <span id="hard-cap"class="raisedboxright">$4,000,000</span></p>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                <div class="progress-text">UNTIL PRICE INCREASE</div>
+                </div>
+            </div>
+
+
+            <!-- Buy Tokens -->
+            <div class="buytokens">
+                <label for="buy-amount">You Pay</label>
+                <input type="number" id="buy-amount" min="0" step="any" placeholder="0"><br>
+                <label for="tokenAmount">You Recieve</label>
+                <input type="text" id="tokenAmount" readonly placeholder="0"><br>
+            </div>
+
+            <select class="paymenttoken" id="payment-token">
+                <option value="ETH">ETH</option>
+                <option value="USDT">USDT</option>
+                <option value="USDC">USDC</option>
+            </select>
+
+        
+            <!-- Wallet Connection -->
+            <div class="connectwallet">
+                <h2>Connect Wallet</h2>
+                <button class="buybutton" onclick="buyTokens()">Buy Tokens</button>
+                <button id="connect-btn" onclick="openPopup()"  class="connectbutton">Connect Wallet</button>
+            </div>
+
+            <!-- Modal for the popup -->
+            <div id="walletModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closePopup()">&times;</span>
+                    <img src="metamask.png" alt="Wallet Connect" class="wallet-image" onclick="triggerWalletConnect()">
+                </div>
+            </div>
+        </div>
+
+        <div class="stakingcontainer" >
+            <!-- Stake Tokens -->
+            <div class="staketokens">
+                <h2>Stake Tokens</h2>
+                <label for="stake-amount">Amount:</label>
+                <input type="number" id="stake-amount" min="0" step="any">
+                <button onclick="stakeTokens()">Stake Tokens</button>
+            </div>
+
+            <!-- Staking Rewards -->
+            <div class="stakingreward">
+                <h2>Staking Rewards</h2>
+                <p><strong>Rewards:</strong> <span id="staking-rewards"></span></p>
+            </div>
+
+        </div>
+
+        <script>
+            let ethPriceInUSD;
+
+            async function fetchETHPrice() {
+                try {
+                    const response = await fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USDT');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    console.log('API response:', data);
+
+                    if (!data.USDT) {
+                        console.error('API response does not contain ETH price in USDT');
+                        return null;
+                    }
+
+                    const ethPriceInUSDT = data.USDT;
+                    console.log(`Live ETH price: ${ethPriceInUSDT} USDT`);
+
+                    // Convert ETH price to your token price (1 USDT = 10,000 tokens)
+                    const tokenPrice = 10000 / ethPriceInUSDT;
+                    console.log(`Live token price: ${tokenPrice} tokens per ETH`);
+
+                    return tokenPrice;
+                } catch (error) {
+                    console.error('Error fetching ETH price:', error);
+                }
+            }
+
+            async function init() {
+                ethPriceInUSD = await fetchETHPrice();
+                document.getElementById('buy-amount').addEventListener('input', convertAmount);
+                document.getElementById('payment-token').addEventListener('change', convertAmount);
+            }
+
+            init();
+
+            function convertAmount() {
+                const buyAmount = document.getElementById('buy-amount').value;
+                const paymentToken = document.getElementById('payment-token').value;
+
+                let tokenAmount;
+                if (paymentToken === 'ETH') {
+                    tokenAmount = (buyAmount * 100000000) / ethPriceInUSD; // convert ETH to tokens
+                } else if (paymentToken === 'USDT' || paymentToken === 'USDC') {
+                    tokenAmount = buyAmount * 10000; // 1 USDT/USDC = 10,000 tokens
+                }
+
+                document.getElementById('tokenAmount').value = tokenAmount.toFixed(2);
+            }
+        </script>
+
+        <script src="app.js"></script>
+        <script src="timer.js" ></script>
+    </body>
+    </html>
